@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string>
 
 #include "lcd_lib.h"
 #include "font8x8.h"
@@ -23,23 +24,23 @@ int main()
 {
     lcd_init();                     // LCD initialization
 
-    uint16_t l_color_red = 0xF800;
-    uint16_t l_color_green = 0x07E0;
-    uint16_t l_color_blue = 0x001F;
-    uint16_t l_color_white = 0xFFFF;
-
-    // simple animation display four color square using LCD_put_pixel function
-    int l_limit = LCD_HEIGHT - 40;
-    for ( int ofs = 0; ofs < 20; ofs++ ) // square offset in x and y axis
+    std::string text = "Vojta je bily clovek.";
+    int len = text.length();
+    for (int i = 0; i < len; i++)
     {
-        for ( int i = 0; i < l_limit; i++ )
-        {
-            lcd_put_pixel( ofs + i, ofs + 0, l_color_red );
-            lcd_put_pixel( ofs + 0, ofs + i, l_color_green );
-            lcd_put_pixel( ofs + i, ofs + l_limit, l_color_blue );
-            lcd_put_pixel( ofs + l_limit, ofs + i, l_color_white );
-        }
+        Character letter({0 + i * 8, 0}, text.at(i), {255, 255, 255}, {255, 255, 255});
+        letter.draw();
     }
+
+    Line line({0, 0}, {400, 25}, {255, 255, 255}, {255, 255, 255});
+    line.draw();
+
+    Circle circle({125, 125}, 37, {255, 255, 255}, {100, 100, 100});
+    circle.draw();
+
+    Rect rect({100, 100}, 50, 50, {255, 255, 255}, {100, 100, 100});
+    rect.draw();
+    
 
     cv::imshow( LCD_NAME, g_canvas );   // refresh content of "LCD"
     cv::waitKey( 0 );                   // wait for key 

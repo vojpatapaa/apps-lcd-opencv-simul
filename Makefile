@@ -21,8 +21,8 @@ all: $(PROGRAM)
 
 endif
 
-$(PROGRAM): $(PROGRAM).cpp lcd_lib.cpp lcd_lib.h graph_class.hpp 
-	g++ $(CPPFLAGS) $(PROGRAM).cpp lcd_lib.cpp -o $@ $(LDFLAGS) $(LDLIBS)
+$(PROGRAM): $(PROGRAM).cpp lcd_lib.cpp font8x8.cpp lcd_lib.h graph_class.hpp font8x8.h
+	g++ $(CPPFLAGS) $(PROGRAM).cpp lcd_lib.cpp font8x8.cpp -o $@ $(LDFLAGS) $(LDLIBS)
 
 clean: 
 	rm -rf $(PROGRAM)
