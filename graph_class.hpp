@@ -19,7 +19,6 @@
 
 struct Point2D
 {
-
     int32_t x, y;
 };
 
@@ -156,10 +155,14 @@ class Character : public GraphElement
 
 		// character
 		char m_character;
+		int m_size;
 
 	public:
 		Character( Point2D t_pos, char t_char, RGB t_fg, RGB t_bg ) :
-		  GraphElement( t_fg, t_bg ), m_pos( t_pos ), m_character( t_char ) {};
+		GraphElement( t_fg, t_bg ), m_pos( t_pos ), m_character( t_char ), m_size(1) {};
+
+		Character( Point2D t_pos, char t_char, int t_size, RGB t_fg, RGB t_bg ) :
+		GraphElement( t_fg, t_bg ), m_pos( t_pos ), m_character( t_char ), m_size(t_size) {};
 
 		void draw()
 		{
@@ -169,15 +172,19 @@ class Character : public GraphElement
 				{
 					uint8_t character = m_character;
 
-					int mask = 1;
-
-					if(((g_font8x8[character][i] >> j) & mask) == 1)
+					if(((g_font8x8[character][i] >> j) & 1) == 1)
 					{
-						this->drawPixel(m_pos.x + j, m_pos.y + i);
+						for (int dy = 0; dy < m_size; dy++)
+						{
+							for (int dx = 0; dx < m_size; dx++)
+							{
+								this->drawPixel(m_pos.x + j * m_size + dx, m_pos.y + i * m_size + dy);
+							}
+						}
 					}
 				}
 			}
-		};
+		}
 };
 
 class Line : public GraphElement

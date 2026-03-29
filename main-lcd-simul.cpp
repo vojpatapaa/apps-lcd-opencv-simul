@@ -28,12 +28,12 @@ int main()
     int len = text.length();
     for (int i = 0; i < len; i++)
     {
-        Character letter({0 + i * 8, 0}, text.at(i), {255, 255, 255}, {255, 255, 255});
+        Character letter({0 + i * 20, 0}, text.at(i), 2, {255, 255, 255}, {255, 255, 255});
         letter.draw();
     }
 
-    Line line({0, 0}, {400, 25}, {255, 255, 255}, {255, 255, 255});
-    line.draw();
+    //Line line({0, 0}, {400, 25}, {255, 255, 255}, {255, 255, 255});
+    //line.draw();
 
     Circle circle({125, 125}, 37, {255, 255, 255}, {100, 100, 100});
     circle.draw();
