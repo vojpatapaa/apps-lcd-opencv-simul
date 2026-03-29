@@ -19,15 +19,14 @@
 
 struct Point2D
 {
+
     int32_t x, y;
 };
-
 
 struct RGB
 {
     uint8_t r, g, b;
 };
-
 
 class GraphElement
 {
@@ -42,6 +41,7 @@ class GraphElement
 		// ONLY ONE INTERFACE WITH LCD HARDWARE!!!
 		void drawPixel( int32_t t_x, int32_t t_y )
 		{
+
 			lcd_put_pixel( t_x, t_y, convert_RGB888_to_RGB565( m_fg_color ) );
 		}
 
@@ -62,16 +62,17 @@ class GraphElement
 		}
 };
 
-
 class Pixel : public GraphElement
 {
-
 	private:
 		// Position of Pixel
 		Point2D m_pos;
+
 	public:
+
 		// constructor
 		Pixel( Point2D t_pos, RGB t_fg_color, RGB t_bg_color ) : GraphElement( t_fg_color, t_bg_color ), m_pos( t_pos ) {}
+
 		// Draw method implementation
 		virtual void draw()
 		{
@@ -79,16 +80,18 @@ class Pixel : public GraphElement
 		}
 };
 
-
 class Circle : public GraphElement
 {
+
 	private:
+
 		// Center of circle
 		Point2D m_center;
+
 		// Radius of circle
 		int32_t m_radius;
-	public:
 
+	public:
 		Circle( Point2D t_center, int32_t t_radius, RGB t_fg, RGB t_bg ) :
 			GraphElement( t_fg, t_bg ), m_center( t_center ), m_radius( t_radius ) {}
 
@@ -106,7 +109,6 @@ class Circle : public GraphElement
 
 		void draw()
 		{
-
 			this->swap_fg_bg_color();
 
 			for(int y = this->m_center.y - this->m_radius; y < this->m_center.y + this->m_radius; y++)
@@ -121,12 +123,12 @@ class Circle : public GraphElement
 			}
 
 			this->swap_fg_bg_color();
-
 			int r = m_radius;
 			int x = 0;
 			int y = m_radius;
 			int d = 3 - 2 * r;
 			DrawCirclePoint(x, y);
+
 			while (y >= x)
 			{
 				if (d > 0)
@@ -134,31 +136,28 @@ class Circle : public GraphElement
 					y--;
 					d = d + 4 * (x - y) + 10;
 				}
+
 				else
 				{
 					d = d + 4 * x + 6;
 				}
 
 				x++;
-
 				DrawCirclePoint(x, y);
-
 			}
-
 		}
 };
-
 
 class Character : public GraphElement
 {
 	private:
 		// position of character
 		Point2D m_pos;
+
 		// character
 		char m_character;
 
 	public:
-
 		Character( Point2D t_pos, char t_char, RGB t_fg, RGB t_bg ) :
 		  GraphElement( t_fg, t_bg ), m_pos( t_pos ), m_character( t_char ) {};
 
@@ -169,7 +168,9 @@ class Character : public GraphElement
 				for(int j = 0; j < 8; j++)
 				{
 					uint8_t character = m_character;
+
 					int mask = 1;
+
 					if(((g_font8x8[character][i] >> j) & mask) == 1)
 					{
 						this->drawPixel(m_pos.x + j, m_pos.y + i);
@@ -179,17 +180,19 @@ class Character : public GraphElement
 		};
 };
 
-
 class Line : public GraphElement
 {
 	private:
-		// the first and the last point of line
 		Point2D m_pos1, m_pos2;
+		bool m_thick;
+		bool m_horizontal;
 
 	public:
-
 		Line( Point2D t_pos1, Point2D t_pos2, RGB t_fg, RGB t_bg ) :
-		  GraphElement( t_fg, t_bg ), m_pos1( t_pos1 ), m_pos2( t_pos2 ) {}
+		  GraphElement( t_fg, t_bg ), m_pos1( t_pos1 ), m_pos2( t_pos2 ), m_thick(false), m_horizontal(false) {}
+
+		Line( Point2D t_pos1, Point2D t_pos2, bool t_thick, bool t_horizontal, RGB t_fg, RGB t_bg ) :
+		  GraphElement( t_fg, t_bg ), m_pos1( t_pos1 ), m_pos2( t_pos2 ), m_thick(t_thick), m_horizontal(t_horizontal) {}
 
 	void draw()
 	{
@@ -197,14 +200,54 @@ class Line : public GraphElement
 		int y1 = m_pos1.y;
 		int x2 = m_pos2.x;
 		int y2 = m_pos2.y;
-
 		int dx = std::abs(x2 - x1);
 		int dy = std::abs(y2 - y1);
-
 		int sx = (x1 < x2) ? 1 : -1;
 		int sy = (y1 < y2) ? 1 : -1;
-
 		int err = dx - dy;
+
+		while(true)
+		{
+			drawPixel(x1, y1);
+
+			if (x1 == x2 && y1 == y2)
+			{
+				break;
+			}
+
+			int e2 = 2 * err;
+
+			if (e2 > -dy)
+			{
+				err -= dy;
+				x1 += sx;
+			}
+
+			if (e2 < dx)
+			{
+				err += dx;
+				y1 += sy;
+			}
+		}
+
+		if(this->m_thick)
+		{
+			x1 = m_pos1.x;
+			y1 = m_pos1.y;
+			x2 = m_pos2.x;
+			y2 = m_pos2.y;
+
+			if(this->m_horizontal)
+			{
+				y1++;
+				y2++;
+			}
+			else
+			{
+				x1++;
+				x2++;
+			}
+		}
 
 		while(true)
 		{
@@ -236,33 +279,40 @@ class Rect : GraphElement
 {
 private:
 	Point2D m_pos;
-	u_int16_t m_width;
-	u_int16_t m_height;
+	uint16_t m_width;
+	uint16_t m_height;
+
 public:
 	Rect(Point2D t_pos, uint16_t t_width, uint16_t t_height, RGB t_fg, RGB t_bg ) :
 		GraphElement( t_fg, t_bg ), m_pos( t_pos ), m_width( t_width ), m_height( t_height ) {}
 
-	void draw() 
+	void draw()
 	{
-		for (int y = m_pos.y; y < m_pos.y + m_height; y++)
+		swap_fg_bg_color();
+		for (int y = m_pos.y; y <= m_pos.y + m_height; y++)
 		{
-			Line line({m_pos.x, y}, {m_pos.x + m_width, y}, this->m_bg_color, this->m_fg_color);
-			line.draw();
+			for (int x = m_pos.x; x <= m_pos.x + m_width; x++)
+			{
+				drawPixel(x, y);
+			}
 		}
+		swap_fg_bg_color();
 
-		Line line1({m_pos.x, m_pos.y}, {m_pos.x + m_width, m_pos.y}, this->m_fg_color, this->m_bg_color);
-		line1.draw();
-		
-		Line line2({m_pos.x + m_width, m_pos.y}, {m_pos.x + m_width, m_pos.y + m_height}, this->m_fg_color, this->m_bg_color);
-		line2.draw();
+		Line top({m_pos.x, m_pos.y}, {m_pos.x + m_width, m_pos.y}, m_fg_color, m_fg_color);
+		top.draw();
 
-		Line line3({m_pos.x + m_width, m_pos.y + m_height}, {m_pos.x, m_pos.y + m_height}, this->m_fg_color, this->m_bg_color);
-		line3.draw();
+		Line bottom({m_pos.x, m_pos.y + m_height}, {m_pos.x + m_width, m_pos.y + m_height}, m_fg_color, m_fg_color);
+		bottom.draw();
 
-		Line line4({m_pos.x, m_pos.y + m_height}, {m_pos.x , m_pos.y}, this->m_fg_color, this->m_bg_color);
-		line4.draw();
+		Line left({m_pos.x, m_pos.y}, {m_pos.x, m_pos.y + m_height}, m_fg_color, m_fg_color);
+		left.draw();
+
+		Line right({m_pos.x + m_width, m_pos.y}, {m_pos.x + m_width, m_pos.y + m_height}, m_fg_color, m_fg_color);
+		right.draw();
 	}
 };
+
+
 
 
 
