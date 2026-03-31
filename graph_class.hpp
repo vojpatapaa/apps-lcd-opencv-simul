@@ -48,7 +48,12 @@ class GraphElement
 		virtual void draw() = 0;
 
 		// Hide graphics element
-		virtual void hide() { swap_fg_bg_color(); draw(); swap_fg_bg_color(); }
+		virtual void hide() 
+		{
+			swap_fg_bg_color();
+			draw();
+			swap_fg_bg_color();
+		}
 
 	protected:
 		// swap foreground and backgroud colors
@@ -190,11 +195,13 @@ class Character : public GraphElement
 class Line : public GraphElement
 {
 	private:
-		Point2D m_pos1, m_pos2;
 		bool m_thick;
 		bool m_horizontal;
 
 	public:
+		Point2D m_pos1; 
+		Point2D m_pos2;
+
 		Line( Point2D t_pos1, Point2D t_pos2, RGB t_fg, RGB t_bg ) :
 		  GraphElement( t_fg, t_bg ), m_pos1( t_pos1 ), m_pos2( t_pos2 ), m_thick(false), m_horizontal(false) {}
 
